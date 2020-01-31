@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body{
+                    margin:0;
+                }
+            canvas{
+                display: block;
+                background: blue;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="mycanvas"></canvas>
+        <script src="pixi/smoothie.js"></script>
+	    <script src="pixi/pixi.js"></script>
+        
+		<script type=text/javascript>
+            
+            //let playerSheet = {};
+            
+            var moveX = false;
+            var moveMinusX = false;
+            var points = 0;
+            var highScore = 0;
+           
+            var titleS = new PIXI.Container();
+            var gameS = new PIXI.Container();
+            
+            const canvas = document.getElementById('mycanvas');
+            const app = new PIXI.Application({
+                view: canvas,
+                width: window.innerWidth,
+                height: window.innerHeight
+            });
+            
+            const smoothie = new Smoothie({
+              engine: PIXI, 
+              renderer: app.renderer,
+              root: app.stage,
+              fps: 30,
+              update: update.bind(this)
+            });
+            
+            const style = new PIXI.TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 36,
+            fontStyle: 'italic',
+            fontWeight: 'bold',
+            fill: ['#ffffff', '#00ff99'], // gradient
+            stroke: '#4a1850',
+            strokeThickness: 5,
+            dropShadow: true,
+            dropShadowColor: '#000000',
+            dropShadowBlur: 4,
+            dropShadowAngle: Math.PI / 6,
+            dropShadowDistance: 6,
+            wordWrap: true,
+            wordWrapWidth: 440,
+            });
+            
+            const pointsTxt = new PIXI.Text('Points: ', style);
+            pointsTxt.x = 50;
+            pointsTxt.y = 10;
+            
+            const MainMenuTxt = new PIXI.Text('Press Enter to Start', style);
+            MainMenuTxt.anchor.x = 0.5;
+            MainMenuTxt.anchor.y = 0.5;
+            
+            const BadObjectsTxt = new PIXI.Text('Avoid', style);
+            BadObjectsTxt.anchor.x = 0.5;
+            BadObjectsTxt.anchor.y = 0.5;
+            
+            const GoodObjectsTxt = new PIXI.Text('Collect', style);
+            GoodObjectsTxt.anchor.x = 0.5;
+            GoodObjectsTxt.anchor.y = 0.5;
+            
+            const highscoreTxt = new PIXI.Text('Highscore: ', style);
+            highscoreTxt.anchor.x = 0.5;
+            highscoreTxt.anchor.y = 0.5;
+            
+            const lastScoreTxt = new PIXI.Text('Last Score: ', style);
+            lastScoreTxt.anchor.x = 0.5;
+            lastScoreTxt.anchor.y = 0.5;
+            setUIScene();
+
+            
+            //app.loader.add("playerSheet","pupil2.png");
+            //app.loader.add("box","box.png");
+            //app.loader.add("player","pupil.png");
+            
+            app.loader.load(doneLoading);
+            
+            const texture = PIXI.Texture.from('box.png');
+            const tex = new PIXI.Sprite(texture);
+            tex.x = app.renderer.width/2;
+            tex.y = 0;
+            tex.scale.set(.2,.2);
+            tex.anchor.x = 0.5;
+            tex.anchor.y = 0.5;
+            
+            const textureball = PIXI.Texture.from('ball.png');
+            const tex2 = new PIXI.Sprite(textureball);
+            tex2.x = app.renderer.width/2;
+            tex2.y = 0;
+            tex2.scale.set(.2,.2);
+            tex2.anchor.x = 0.5;
+            tex2.anchor.y = 0.5;
+            
+            const texturerock = PIXI.Texture.from('rock.png');
+            const tex3 = new PIXI.Sprite(texturerock);
+            tex3.x = app.renderer.width/2;
+            tex3.y = 0;
+            tex3.scale.set(.2,.2);
+            tex3.anchor.x = 0.5;
+            tex3.anchor.y = 0.5;
+            
+            const titletex = new PIXI.Sprite(texture);
+            titletex.x = BadObjectsTxt.x;
+            titletex.y = BadObjectsTxt.y + 100;
+            titletex.scale.set(.2,.2);
+            titletex.anchor.x = 0.5;
+            titletex.anchor.y = 0.5;
+            
+            const titletexball = new PIXI.Sprite(textureball);
+            titletexball.x = titletex.x;
+            titletexball.y = titletex.y + 100;
+            titletexball.scale.set(.2,.2);
+            titletexball.anchor.x = 0.5;
+            titletexball.anchor.y = 0.5;
+            
+            const titletexrock = new PIXI.Sprite(texturerock);
+            titletexrock.x = titletexball.x;
+            titletexrock.y = titletexball.y + 100;
+            titletexrock.scale.set(.2,.2);
+            titletexrock.anchor.x = 0.5;
+            titletexrock.anchor.y = 0.5;
+            
+            const watermellontexture = PIXI.Texture.from('watermellon.png');
+            const wmtex = new PIXI.Sprite(watermellontexture);
+            wmtex.x = app.renderer.width/2;
+            wmtex.y = 0;
+            wmtex.scale.set(.2,.2);
+            wmtex.anchor.x = 0.5;
+            wmtex.anchor.y = 0.5;
+            
+            const orangetexture = PIXI.Texture.from('orange.png');
+            const wmtex2 = new PIXI.Sprite(orangetexture);
+            wmtex2.x = app.renderer.width/2;
+            wmtex2.y = 0;
+            wmtex2.scale.set(.2,.2);
+            wmtex2.anchor.x = 0.5;
+            wmtex2.anchor.y = 0.5;
+            
+            const pizzatexture = PIXI.Texture.from('pizza.png');
+            const wmtex3 = new PIXI.Sprite(pizzatexture);
+            wmtex3.x = app.renderer.width/2;
+            wmtex3.y = 0;
+            wmtex3.scale.set(.2,.2);
+            wmtex3.anchor.x = 0.5;
+            wmtex3.anchor.y = 0.5;
+            
+            const titlewmtex = new PIXI.Sprite(watermellontexture);
+            titlewmtex.x = GoodObjectsTxt.x;
+            titlewmtex.y = GoodObjectsTxt.y + 100;
+            titlewmtex.scale.set(.2,.2);
+            titlewmtex.anchor.x = 0.5;
+            titlewmtex.anchor.y = 0.5;
+            
+            const titleorngtex = new PIXI.Sprite(orangetexture);
+            titleorngtex.x = titlewmtex.x;
+            titleorngtex.y = titlewmtex.y + 100;
+            titleorngtex.scale.set(.2,.2);
+            titleorngtex.anchor.x = 0.5;
+            titleorngtex.anchor.y = 0.5;
+            
+            const titlepztex = new PIXI.Sprite(pizzatexture);
+            titlepztex.x = titleorngtex.x;
+            titlepztex.y = titleorngtex.y + 100;
+            titlepztex.scale.set(.2,.2);
+            titlepztex.anchor.x = 0.5;
+            titlepztex.anchor.y = 0.5;
+            
+            const texture2 = PIXI.Texture.from('pupil.png');
+            const img2 = new PIXI.Sprite(texture2);
+            img2.scale.set(.25,.25);
+            img2.x = app.renderer.width/2;
+            img2.y = app.renderer.height - 50;
+            img2.anchor.x = 0.5;
+            img2.anchor.y = 0.5;
+
+            //Title Textures
+            titleS.addChild(titletex);
+            titleS.addChild(titletexball);
+            titleS.addChild(titletexrock);
+            titleS.addChild(titlewmtex);
+            titleS.addChild(titlepztex);
+            titleS.addChild(titleorngtex);
+            titleS.addChild(MainMenuTxt);
+            titleS.addChild(BadObjectsTxt);
+            titleS.addChild(GoodObjectsTxt);
+            titleS.addChild(highscoreTxt);
+            titleS.addChild(lastScoreTxt);
+            
+            //Game Textures
+            gameS.addChild(img2);
+            gameS.addChild(pointsTxt);
+            gameS.addChild(tex);
+            gameS.addChild(tex2);
+            gameS.addChild(tex3);
+            gameS.addChild(wmtex);
+            gameS.addChild(wmtex2);
+            gameS.addChild(wmtex3);
+            
+            //Collision Detection
+            function animate(){
+                if(!titleS.visible){
+                    
+                    //Respawn Elements if they get out of the screen
+                    if(tex.y > app.renderer.height + 100)
+                        {
+                            spawnBox();
+                        }
+                    if(tex2.y > app.renderer.height + 100)
+                        {
+                            spawnBAll();
+                        }
+                    if(tex3.y > app.renderer.height + 100)
+                        {
+                            spawnRock();
+                        }
+                    if(wmtex.y > app.renderer.height + 100)
+                        {
+                            spawnFastFood();
+                        }
+                    if(wmtex2.y > app.renderer.height + 100)
+                        {
+                            spawnAvgFood();
+                        }
+                    if(wmtex3.y > app.renderer.height + 100)
+                        {
+                            spawnSlowFood();
+                        }
+                    //Lose Points or Game
+                    if(getDistance(tex.x,tex.y,img2.x,img2.y) < 85)
+                        {
+                            titleS.visible = true;
+                            gameS.visible = false;
+                            setUIScene();
+                        }
+                    if(getDistance(tex2.x,tex2.y,img2.x,img2.y) < 85)
+                        {
+                            spawnBAll();
+                            points -= 2;
+                            pointsTxt.text = "Points: " + points;
+                        }
+                    if(getDistance(tex3.x,tex3.y,img2.x,img2.y) < 85)
+                        {
+                            spawnRock();
+                            points -= 4;
+                            pointsTxt.text = "Points: " + points;
+                        }
+                    //Gain points
+                    if(getDistance(wmtex.x,wmtex.y,img2.x,img2.y) < 60)
+                        {
+                            spawnFastFood();
+                            points += 3;
+                            pointsTxt.text = "Points: " + points;
+                        }
+                    if(getDistance(wmtex2.x,wmtex2.y,img2.x,img2.y) < 60)
+                        {
+                            spawnAvgFood();
+                            points += 2;
+                            pointsTxt.text = "Points: " + points;
+                        }
+                    if(getDistance(wmtex3.x,wmtex3.y,img2.x,img2.y) < 60)
+                        {
+                            spawnSlowFood();
+                            points += 1;
+                            pointsTxt.text = "Points: " + points;
+                        }
+                }
+                
+                app.render(app.stage);
+            }
+            
+            function update() {
+                //Falling Speed
+                if(!titleS.visible){
+                    tex.y += 7;
+                    tex2.y += 9;
+                    tex3.y += 11;
+                    wmtex.y += 15;
+                    wmtex2.y += 11;
+                    wmtex3.y += 6;
+
+                    if(moveX){
+                        img2.x -= 35;
+                    }
+                    else if(moveMinusX){
+                        img2.x += 35;  
+                    }
+                }
+            }
+            
+            
+            function doneLoading()
+            {
+                //createPlayerSheet();
+                //createPlayer();
+            
+                titleS.visible = true;
+                gameS.visible = false;
+                
+                app.stage.addChild(titleS);
+                app.stage.addChild(gameS);
+                
+                app.ticker.add(animate);
+                smoothie.start();
+            }
+            
+            function spawnFastFood()
+            {
+                wmtex.y = 0;
+                wmtex.x = Math.random() * app.renderer.width;
+                wmtex.rotation = Math.random() * 180;
+            }
+            function spawnAvgFood()
+            {
+                wmtex2.y = 0;
+                wmtex2.x = Math.random() * app.renderer.width;
+                wmtex2.rotation = Math.random() * 180;
+            }
+            function spawnSlowFood()
+            {
+                wmtex3.y = 0;
+                wmtex3.x = Math.random() * app.renderer.width;
+                wmtex3.rotation = Math.random() * 180;
+            }
+            function spawnBox()
+            {
+                tex.y = 0;
+                tex.x = Math.random() * app.renderer.width;
+                tex.rotation = Math.random() * 180;
+            }
+            function spawnBAll()
+            {
+                tex2.y = 0;
+                tex2.x = Math.random() * app.renderer.width;
+                tex2.rotation = Math.random() * 180;
+            }
+            function spawnRock()
+            {
+                tex3.y = 0;
+                tex3.x = Math.random() * app.renderer.width;
+                tex3.rotation = Math.random() * 180;
+            }
+            
+            function setGameScene()
+            {
+                spawnFastFood();
+                spawnAvgFood();
+                spawnSlowFood();
+                spawnBox();
+                spawnBAll();
+                spawnRock();
+                img2.position.set(app.screen.width/2, app.screen.height-50);
+            }
+            
+            function setUIScene()
+            {
+                BadObjectsTxt.x = 100;
+                BadObjectsTxt.y = 40;
+                
+                GoodObjectsTxt.x = BadObjectsTxt.x + 150;
+                GoodObjectsTxt.y = BadObjectsTxt.y;
+                
+                MainMenuTxt.x = window.innerWidth/2;
+                MainMenuTxt.y = window.innerHeight/2;
+                
+                highscoreTxt.x = window.innerWidth/2;
+                highscoreTxt.y = window.innerHeight/2 - 100;
+                
+                lastScoreTxt.x = highscoreTxt.x;
+                lastScoreTxt.y = highscoreTxt.y - 50;
+                lastScoreTxt.text = "Last Score: " + points;
+                
+                if(highScore < points)
+                    {
+                        highScore = points;
+                    }
+                highscoreTxt.text = "Highscore: " + highScore;
+            }
+            
+            function getDistance(x,y,x1,y1)
+            {
+                let xDistance = x1 - x;
+                let yDistance = y1 - y;
+                
+                return Math.sqrt(Math.pow(xDistance,2) +  Math.pow(yDistance,2));
+            }
+
+            /*function createPlayerSheet()
+            {
+                let ssheet = new PIXI.BaseTexture.from(app.loader.resources["playerSheet"].url);
+                let w = 150;
+                let h = 100;
+                
+                playerSheet["standStill"] = [
+                    new PIXI.Texture(ssheet,new PIXI.Rectangle(9 * w,4*h,w,h)),
+                    new PIXI.Texture(ssheet,new PIXI.Rectangle(10 * w,4*h,w,h)),
+                    new PIXI.Texture(ssheet,new PIXI.Rectangle(11 * w,4*h,w,h))
+                ];
+                
+                playerSheet["walk"] = [
+                    new PIXI.Texture(ssheet,new PIXI.Rectangle(0 * w,0*h,w,h)),
+                    new PIXI.Texture(ssheet,new PIXI.Rectangle(1 * w,0*h,w,h)),
+                    new PIXI.Texture(ssheet,new PIXI.Rectangle(2 * w,0*h,w,h))
+                ];
+                
+            }
+            
+            function createPlayer()
+            {
+                let animSprite = new PIXI.AnimatedSprite(playerSheet.standStill);
+                player = animSprite;
+                player.anchor.set(0.5);
+                player.animationSpeed = .5;
+                player.loop = false;
+                player.x = app.renderer.width/2;
+                player.y = app.renderer.height - 50;
+                app.stage.addChild(player);
+                player.play();
+            }*/
+            
+            // Add the 'keydown' event listener to our document
+            document.addEventListener('keydown', onKeyDown);
+            
+            // Add the 'keydown' event listener to our document
+            document.addEventListener('keyup', onKeyUp);
+            
+            // Listen for window resize events
+            window.addEventListener('resize', resize);
+
+            // Resize function window
+            function resize() {
+                app.renderer.resize(window.innerWidth, window.innerHeight);
+                
+                if(titleS.visible){setUIScene();}
+                else{setGameScene();}
+                
+            }
+
+            resize();
+            
+            function onKeyUp(key) {
+                
+                if (key.keyCode === 65 || key.keyCode === 37) {
+                    moveX = false;
+                }
+                if (key.keyCode === 68 || key.keyCode === 39) {
+                    moveMinusX = false;
+                }
+            }
+            
+            //Error when pressing 2 keys at the same time.
+            function onKeyDown(key) {
+                
+                if (key.keyCode === 65 && key.keyCode === 37){
+                    moveX = false;
+                    moveMinusX = false;
+                }
+                // A Key is 65
+                // Left arrow is 37
+                else if (key.keyCode === 65 || key.keyCode === 37) {
+                    // If the A key or the Left arrow is pressed, move the player to the left.
+                    if (img2.position.x > 55) {
+                        // Don't move to the left if the player is at the left side of the stage
+                        img2.scale.x = -0.25;
+                        moveX = true;
+                    }
+                    else{
+                        moveX = false;
+                    }
+                }
+
+                // D Key is 68
+                // Right arrow is 39
+                else if (key.keyCode === 68 || key.keyCode === 39) {
+                    // If the D key or the Right arrow is pressed, move the player to the right.
+                    if (img2.position.x < app.renderer.width - 55) {
+                        // Don't move to the right if the player is at the right side of the stage
+                        img2.scale.x = 0.25;
+                        moveMinusX = true;
+                    }
+                    else{
+                        moveMinusX = false;
+                    }
+                }
+                else if (key.keyCode === 13){
+                    titleS.visible = false;
+                    gameS.visible = true;
+                    points = 0;
+                    pointsTxt.text = "Points: " + points;
+                    setGameScene();
+                }
+            }
+            
+		</script>
+    </body>
+</html>
