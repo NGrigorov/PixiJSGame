@@ -466,11 +466,9 @@
             
             //Error when pressing 2 keys at the same time.
             function onKeyDown(key) {
-                
-                if (key.keyCode === 65 && key.keyCode === 68){
                     moveX = false;
                     moveMinusX = false;
-                }
+                
                 // A Key is 65
                 // Left arrow is 37
                 else if (key.keyCode === 65 || key.keyCode === 37) {
