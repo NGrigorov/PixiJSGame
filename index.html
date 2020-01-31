@@ -295,11 +295,13 @@
                     wmtex2.y += 11;
                     wmtex3.y += 6;
 
-                    if(moveX){
+                    if(moveX && img2.x > 55){
                         img2.x -= 35;
+                        img2.scale.x = -0.25;
                     }
-                    else if(moveMinusX){
+                    else if(moveMinusX && img2.x < app.renderer.width - 55){
                         img2.x += 35;  
+                        img2.scale.x = 0.25;
                     }
                 }
             }
@@ -466,16 +468,13 @@
             
             //Error when pressing 2 keys at the same time.
             function onKeyDown(key) {
-                    moveX = false;
-                    moveMinusX = false;
                 
                 // A Key is 65
                 // Left arrow is 37
-                else if (key.keyCode === 65 || key.keyCode === 37) {
+                if (key.keyCode === 65 || key.keyCode === 37) {
                     // If the A key or the Left arrow is pressed, move the player to the left.
                     if (img2.position.x > 55) {
                         // Don't move to the left if the player is at the left side of the stage
-                        img2.scale.x = -0.25;
                         moveX = true;
                     }
                     else{
@@ -489,14 +488,14 @@
                     // If the D key or the Right arrow is pressed, move the player to the right.
                     if (img2.position.x < app.renderer.width - 55) {
                         // Don't move to the right if the player is at the right side of the stage
-                        img2.scale.x = 0.25;
                         moveMinusX = true;
                     }
                     else{
                         moveMinusX = false;
                     }
                 }
-                else if (key.keyCode === 13){
+                
+                if (key.keyCode === 13){
                     titleS.visible = false;
                     gameS.visible = true;
                     points = 0;
