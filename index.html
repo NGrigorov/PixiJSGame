@@ -60,6 +60,13 @@
             wordWrapWidth: 440,
             });
             
+            // create a background...
+            const background = PIXI.Sprite.from('Work-2.jpg');
+            background.width = 1925;
+            background.height = 975;
+            //console.log(app.screen.height);
+            //console.log(app.screen.width);
+            
             const pointsTxt = new PIXI.Text('Points: ', style);
             pointsTxt.x = 50;
             pointsTxt.y = 10;
@@ -91,6 +98,14 @@
             //app.loader.add("player","pupil.png");
             
             app.loader.load(doneLoading);
+            
+            
+            
+            // create a background...
+            //const background2 = PIXI.Sprite.from('Work-2.jpg');
+            //background2.width = app.screen.width;
+            //background2.height = app.screen.height;
+            
             
             const texture = PIXI.Texture.from('box.png');
             const tex = new PIXI.Sprite(texture);
@@ -191,6 +206,7 @@
             img2.anchor.y = 0.5;
 
             //Title Textures
+            //titleS.addChild(background2);
             titleS.addChild(titletex);
             titleS.addChild(titletexball);
             titleS.addChild(titletexrock);
@@ -203,7 +219,9 @@
             titleS.addChild(highscoreTxt);
             titleS.addChild(lastScoreTxt);
             
+            
             //Game Textures
+            //gameS.addChild(background);
             gameS.addChild(img2);
             gameS.addChild(pointsTxt);
             gameS.addChild(tex);
@@ -212,6 +230,7 @@
             gameS.addChild(wmtex);
             gameS.addChild(wmtex2);
             gameS.addChild(wmtex3);
+            
             
             //Collision Detection
             function animate(){
@@ -315,6 +334,7 @@
                 titleS.visible = true;
                 gameS.visible = false;
                 
+                app.stage.addChild(background);
                 app.stage.addChild(titleS);
                 app.stage.addChild(gameS);
                 
